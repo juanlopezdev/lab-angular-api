@@ -28,6 +28,8 @@ export class ProductsComponent implements OnInit {
     },
     description: ''
   }
+  limit = 10;
+  offset = 0;
 
   constructor(
     private storeService: StoreService,
@@ -37,10 +39,7 @@ export class ProductsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.productsService.getAllProducts()
-      .subscribe(data => {
-        this.products = data;
-      });
+    this.loadMore();
   }
 
   onAddToShoppingCart(product: Product) {
@@ -81,12 +80,29 @@ export class ProductsComponent implements OnInit {
     }
     const id = this.productChosen.id;
     this.productsService.update(id, changes)
-    .subscribe(data => {
-      console.log('updated', data);
-      const productIndex = this.products.findIndex(item => item.id === id)
-      this.products[productIndex] = data;
-      this.productChosen = data;
-    })
+      .subscribe(data => {
+        const productIndex = this.products.findIndex(item => item.id === id);
+        this.products[productIndex] = data;
+        this.productChosen = data;
+      })
+  }
+
+  deleteProduct() {
+    const id = this.productChosen.id;
+    this.productsService.delete(id)
+      .subscribe(() => {
+        const productIndex = this.products.findIndex(item => item.id === id);
+        this.products.splice(productIndex, 1);
+        this.showProductDetail = false;
+      })
+  }
+
+  loadMore() {
+    this.productsService.getAllProducts(this.limit, this.offset)
+      .subscribe(data => {
+        this.products = this.products.concat(data);
+        this.offset += this.limit;
+      });
   }
 
 }
