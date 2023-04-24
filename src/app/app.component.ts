@@ -12,6 +12,7 @@ import { FilesService } from './services/files.service';
 export class AppComponent {
   imgParent = '';
   showImg = true;
+  imgRta = '';
 
   constructor(
     private authService: AuthService,
@@ -40,6 +41,17 @@ export class AppComponent {
 
   downloadPDF() {
     this.fileService.getFile('mypdf', 'https://young-sands-07814.herokuapp.com/api/files/dummy.pdf', 'application/pdf')
-    .subscribe()
+      .subscribe()
+  }
+
+  onUpload(event: Event) {
+    const element = event.target as HTMLInputElement;
+    const file = element.files?.item(0);
+    if (file) {
+      this.fileService.uploadFile(file)
+        .subscribe(rta => {
+          this.imgRta = rta.location;
+        })
+    }
   }
 }
